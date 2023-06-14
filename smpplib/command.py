@@ -143,7 +143,10 @@ class Command(pdu.PDU):
                 elif param.type is ostr:
                     value = self._generate_ostring(field)
                     if value:
-                        body += value
+                        if not isinstance(value, (bytes, bytearray)):
+                            body += bytes(value, "utf-8")
+                        else:
+                            body += value
         return body
 
     def _generate_opt_header(self, field):
@@ -795,6 +798,7 @@ class DeliverSM(SubmitSM):
         'source_network_type': Param(type=int, size=1),
         'dest_network_type': Param(type=int, size=1),
         'more_messages_to_send': Param(type=int, size=1),
+        'ussd_service_op': Param(type=int, size=1),
     }
 
     params_order = (
@@ -814,6 +818,7 @@ class DeliverSM(SubmitSM):
         'dest_subaddress', 'language_indicator', 'its_session_info',
         'network_error_code', 'message_state', 'receipted_message_id',
         'source_network_type', 'dest_network_type', 'more_messages_to_send',
+        'ussd_service_op',
     )
 
     def __init__(self, command, **kwargs):
